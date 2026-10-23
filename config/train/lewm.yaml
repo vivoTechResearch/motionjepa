@@ -1,0 +1,126 @@
+defaults:
+  - _self_
+  - launcher: local
+  - data: pusht
+  - model: lewm
+
+experiment:
+  name: motion-jepa
+  output_root: ${oc.env:MOTION_JEPA_LOG_ROOT,outputs}
+  seed: 3072
+
+hardware:
+  gpus: [0]
+  accelerator: gpu
+  precision: bf16
+
+logging:
+  log_every_n_steps: 50
+  visualize_every_n_steps: 250
+  save_code_snapshot: true
+
+resume:
+  enabled: false
+  run_dir: null
+  checkpoint_dir: null
+  checkpoint_path: null
+  epoch: null
+
+wood:
+  enabled: true
+  train: true
+  val: true
+  eval: true
+  seed: ${seed}
+  texture_path: assets/wood_texture.png
+  mask_mode: white
+  white_threshold: 245
+  background_tolerance: 8
+  static_background_path: null
+
+inverse_action_raw:
+  enabled: false
+  hidden_dim: 512
+  depth: 3
+
+# Original LeWM applies SIGReg per time step. LeWM-Flat pools B and T.
+sigreg_flat:
+  enabled: false
+
+diff_image:
+  enabled: true
+  detach_z_for_prediction: false
+  encoder_size: tiny
+  encoder_patch_size: 14
+  image_size: 112
+  latent_dim: 8
+  latent_to_diff:
+    hidden_dim: 512
+    depth: 3
+
+validation:
+  enable_epoch_eval_placeholder: true
+  eval_every_n_epochs: 1
+  eval_on_resume_start: false
+  eval_script: eval.py
+  success_rate_output_dir: val_success
+  evals:
+    - name: 25_step
+      goal_offset_steps: 25
+      eval_budget: 50
+    - name: 50_step
+      goal_offset_steps: 50
+      eval_budget: 100
+  extra_args: []
+
+probe:
+  hidden_dim: 512
+  output_dim: ???
+  targets: ???
+  stats: {}
+
+loss:
+  weights:
+    prediction: 1.0
+    sigreg: 0.0
+    image_reconstruction: 1.0
+    pose_probe: 1.0
+    inverse_action_raw_prediction: 50.0
+    sigreg_diff_image: 0.09
+    diff_image_latent_prediction: 1.0
+  sigreg:
+    kwargs:
+      knots: 17
+      num_proj: 1024
+
+num_workers: 6
+train_split: 0.9
+seed: ${experiment.seed}
+img_size: 224
+embed_dim: 192
+history_size: 3
+
+trainer:
+  max_epochs: 10
+  devices: ${hardware.gpus}
+  accelerator: ${hardware.accelerator}
+  precision: ${hardware.precision}
+  gradient_clip_val: 1.0
+  log_every_n_steps: ${logging.log_every_n_steps}
+  check_val_every_n_epoch: 1
+  val_check_interval: 1.0
+  num_sanity_val_steps: 0
+
+loader:
+  batch_size: 64
+  num_workers: ${num_workers}
+  persistent_workers: true
+  prefetch_factor: 3
+  pin_memory: true
+
+optimizer:
+  type: AdamW
+  lr: 5e-5
+  weight_decay: 1e-3
+
+num_preds: 1

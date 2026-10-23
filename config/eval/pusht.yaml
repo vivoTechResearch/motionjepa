@@ -1,0 +1,61 @@
+defaults:
+  - launcher: local
+  - solver: cem
+  - _self_
+
+world:
+  env_name: swm/PushT-v1
+  num_envs: ${eval.num_eval}
+  max_episode_steps: ??? # make sure it's >= eval_budget
+
+dataset:
+  stats: ${eval.dataset_name}
+  keys_to_cache:
+    - action
+    - proprio
+    - state
+    - episode_idx
+
+seed: 42
+policy: random # ckpt name or random
+policy_cache_dir: null
+
+wood:
+  enabled: false
+  train: true
+  val: true
+  eval: true
+  seed: ${seed}
+  texture_path: assets/wood_texture.png
+  mask_mode: white
+  white_threshold: 245
+  background_tolerance: 8
+  static_background_path: null
+
+plan_config:
+  horizon: 5
+  receding_horizon: 5
+  action_block: 5 # frameskip
+
+# evaluation from dataset (replay expert trajectories)
+eval:
+  num_eval: 50
+  save_video: false
+  goal_offset_steps: 25
+  eval_budget: 50
+  img_size: 224
+  dataset_name: pusht_expert_train
+  callables:
+    # -- set state
+    - method: _set_state
+      args:
+        state:
+          value: state
+    # -- set goal state
+    - method: _set_goal_state
+      args:
+        goal_state:
+          value: goal_state
+          
+output:
+  filename: pusht_results.txt

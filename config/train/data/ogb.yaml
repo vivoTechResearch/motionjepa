@@ -1,0 +1,52 @@
+dataset:
+  name: cube_single_expert.h5
+  num_steps: ${eval:'${num_preds} + ${history_size}'}
+  frameskip: 5
+  keys_to_load:
+    - pixels
+    - action
+    - observation
+    - proprio_effector_pos
+    - proprio_effector_yaw
+    - privileged_block_0_pos
+    - privileged_block_0_yaw
+    - privileged_target_block_pos
+    - privileged_target_block_yaw
+    - ep_idx
+  keys_to_cache:
+    - action
+    - observation
+    - proprio_effector_pos
+    - proprio_effector_yaw
+    - privileged_block_0_pos
+    - privileged_block_0_yaw
+    - privileged_target_block_pos
+    - privileged_target_block_yaw
+    - ep_idx
+  keys_to_merge:
+    proprio: proprio
+
+probe:
+  output_dim: 15
+  targets:
+    - name: effector_xyz
+      type: vector
+      col: proprio_effector_pos
+    - name: block_xyz
+      type: vector
+      col: privileged_block_0_pos
+    - name: target_block_xyz
+      type: vector
+      col: privileged_target_block_pos
+    - name: effector_yaw
+      type: angle
+      col: proprio_effector_yaw
+      index: 0
+    - name: block_yaw
+      type: angle
+      col: privileged_block_0_yaw
+      index: 0
+    - name: target_block_yaw
+      type: angle
+      col: privileged_target_block_yaw
+      index: 0

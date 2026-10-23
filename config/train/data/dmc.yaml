@@ -1,0 +1,37 @@
+dataset:
+  num_steps: ${eval:'${num_preds} + ${history_size}'}
+  frameskip: 5
+  name: reacher.h5
+  keys_to_load:
+    - pixels
+    - action
+    - observation
+    - qpos
+    - finger_pos
+    - target_pos
+    - ep_idx
+  keys_to_cache:
+    - action
+    - observation
+    - qpos
+    - finger_pos
+    - target_pos
+    - ep_idx
+
+probe:
+  output_dim: 8
+  targets:
+    - name: joint_0_angle
+      type: angle
+      col: qpos
+      index: 0
+    - name: joint_1_angle
+      type: angle
+      col: qpos
+      index: 1
+    - name: finger_xy
+      type: vector
+      col: finger_pos
+    - name: target_xy
+      type: vector
+      col: target_pos

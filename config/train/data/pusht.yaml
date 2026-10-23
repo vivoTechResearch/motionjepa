@@ -1,0 +1,31 @@
+dataset:
+  num_steps: ${eval:'${num_preds} + ${history_size}'}
+  frameskip: 5
+  name: pusht_expert_train.h5
+  keys_to_load:
+    - pixels
+    - action
+    - proprio
+    - state
+    - episode_idx
+  keys_to_cache:
+    - action
+    - proprio
+    - state
+    - episode_idx
+
+probe:
+  output_dim: 6
+  targets:
+    - name: dot_xy
+      type: vector
+      col: state
+      indices: [0, 1]
+    - name: tee_xy
+      type: vector
+      col: state
+      indices: [2, 3]
+    - name: tee_angle
+      type: angle
+      col: state
+      index: 4
